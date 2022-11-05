@@ -1,0 +1,17 @@
+---
+- hosts: all
+  become: yes
+  tasks:
+    - name: create the 'ade' user
+      user: name=ade append=yes state=present createhome=yes shell=/bin/bash
+
+    - name: allow 'ade' to have passwordless sudo
+      lineinfile:
+        dest: /etc/sudoers
+        line: 'ade ALL=(ALL) NOPASSWD: ALL'
+        validate: 'visudo -cf %s'
+
+    - name: set up authorized keys for the ade user
+      authorized_key: user=ade key="{{item}}"
+      with_file:
+        - ~/.ssh/id_rsa.pub
